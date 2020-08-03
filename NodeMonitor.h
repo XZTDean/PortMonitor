@@ -6,8 +6,6 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
-#include <ostream>
-
 using namespace std;
 
 
@@ -60,9 +58,9 @@ public:
     friend ostream& operator<<(ostream& os, const NodeMonitor& monitor) {
         struct tm* t;
         t = localtime(&monitor.startTime);
-        os << t->tm_year + 1900 << '-' << t->tm_mon << '-' << t->tm_mday << ' ' << t->tm_hour << ':' << t->tm_min << " ~ ";
+        os << t->tm_year + 1900 << '-' << t->tm_mon + 1<< '-' << t->tm_mday << ' ' << t->tm_hour << ':' << t->tm_min << " ~ ";
         t = localtime(&monitor.endTime);
-        os << t->tm_year + 1900 << '-' << t->tm_mon << '-' << t->tm_mday << ' ' << t->tm_hour << ':' << t->tm_min << endl;
+        os << t->tm_year + 1900 << '-' << t->tm_mon + 1<< '-' << t->tm_mday << ' ' << t->tm_hour << ':' << t->tm_min << endl;
 
         int nodeSize = monitor.node.size();
         bool empty = true;
