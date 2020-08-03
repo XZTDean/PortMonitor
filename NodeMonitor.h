@@ -68,7 +68,7 @@ public:
             if (!monitor.ip[i].empty()) {
                 empty = false;
                 string nodeInfo = "  " + to_string(monitor.node[i]) + ": ";
-                os << os.width(9); // 2 spaces + 5 digits port + ": "
+                os.width(9); // 2 spaces + 5 digits port + ": "
                 os << left << nodeInfo;
                 os << monitor.ip[i][0] << endl;
                 for (int j = 1; j < monitor.ip[i].size(); ++j) {
