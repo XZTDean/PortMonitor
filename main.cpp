@@ -30,14 +30,21 @@ void dayMonitor(const vector<int>& node) {
     t = localtime(&startTime);
     string date = to_string(t->tm_year) + '-' + to_string(t->tm_mon) + '-' + to_string(t->tm_mday);
     NodeMonitor* monitor[24];
-    for (auto& i : monitor) {
-        i = oneHourMonitor(node);
+    for (auto& mo : monitor) {
+        mo = oneHourMonitor(node);
         ofstream fout("log/" + date + ".log", ios::app);
+        fout << *mo;
+        fout.close();
     }
+    cout << date << " generate.\n";
 }
 
 int main() {
     vector<int> node = getNode();
+
+    while (true) {
+        dayMonitor(node);
+    }
 
     return 0;
 }
