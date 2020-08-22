@@ -1,7 +1,8 @@
 #include <iostream>
 #include <unistd.h>
 #include <sstream>
-#include "NodeMonitor.h"
+#include "PortMonitor.h"
+#include "IP.h"
 using namespace std;
 
 vector<int> getNode() {
@@ -30,8 +31,8 @@ string generateDate() {
     return ss.str();
 }
 
-NodeMonitor* oneHourMonitor(const vector<int>& node) {
-    NodeMonitor* monitor = new NodeMonitor(node);
+PortMonitor* oneHourMonitor(const vector<int>& node) {
+    PortMonitor* monitor = new PortMonitor(node);
     for (int i = 0; i < 12; ++i) {
         monitor->recode();
         sleep(300);
@@ -42,7 +43,7 @@ NodeMonitor* oneHourMonitor(const vector<int>& node) {
 
 void dayMonitor(const vector<int>& node) {
     string date = generateDate();
-    NodeMonitor* monitor[24];
+    PortMonitor* monitor[24];
     for (auto& mo : monitor) {
         mo = oneHourMonitor(node);
         ofstream fout("log/" + date + ".log", ios::app);

@@ -1,5 +1,5 @@
-#ifndef SSRMONITOR_NODEMONITOR_H
-#define SSRMONITOR_NODEMONITOR_H
+#ifndef PORTMONITOR_H
+#define PORTMONITOR_H
 
 #include <ctime>
 #include <vector>
@@ -9,15 +9,15 @@
 using namespace std;
 
 
-class NodeMonitor {
+class PortMonitor {
 public:
-    NodeMonitor(const vector<int>& node) : node(node) {
+    PortMonitor(const vector<int>& node) : node(node) {
         startTime = time(nullptr);
         endTime = time(nullptr);
         ip = new vector<string>[node.size()];
     }
 
-    virtual ~NodeMonitor() {
+    virtual ~PortMonitor() {
         delete[] ip;
     }
 
@@ -29,12 +29,13 @@ public:
         int nodeSize = node.size();
         for (int i = 0; i < nodeSize; ++i) {
             string nodeNum = to_string(node[i]);
-            string command = "netstat | grep " + nodeNum + " >> tmp";
+            string command = "netstat -n | grep :" + nodeNum + " >> tmp";
             system(command.data());
 
             ifstream fin("tmp");
             string tmp;
-            while (fin >> tmp) { // Sample: tcp6       0      0 SFO2-Ubuntu18:8932      118.114.165.46:52558    ESTABLISHED
+            while (!fin.eof()) { // Sample: tcp6       0      0 SFO2-Ubuntu18:8932      118.114.165.46:52558    ESTABLISHED
+                getline(fin >> ws, tmp);
                 int pos = tmp.find(nodeNum) + 5; // max length of node is 5 digits
                 if (pos == string::npos)
                     continue;
@@ -55,7 +56,7 @@ public:
         }
     }
 
-    friend ostream& operator<<(ostream& os, const NodeMonitor& monitor) {
+    friend ostream& operator<<(ostream& os, const PortMonitor& monitor) {
         struct tm* t;
         t = localtime(&monitor.startTime);
         os << t->tm_year + 1900 << '-' << t->tm_mon + 1<< '-' << t->tm_mday << ' ' << t->tm_hour << ':' << t->tm_min << " ~ ";
@@ -91,4 +92,4 @@ private:
 };
 
 
-#endif //SSRMONITOR_NODEMONITOR_H
+#endif //PORTMONITOR_H
