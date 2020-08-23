@@ -26,7 +26,7 @@ public:
         if (dot3 == string::npos) {
             return -1;
         }
-        unsigned int ipPart[4];
+        unsigned short ipPart[4];
         try {
             ipPart[0] = stoul(dotDecimal.substr(0, dot1));
             ipPart[1] = stoul(dotDecimal.substr(dot1 + 1, dot2 - dot1 - 1));
@@ -36,13 +36,13 @@ public:
             return -1;
         }
         for (int i = 0; i < 4; ++i) {
-            if (ipPart[i] > 255) {
+            if (ipPart[i] > 255) { // 0~255 is a part
                 return -1;
             }
         }
         unsigned int ip = ipPart[0];
         for (int i = 1; i < 4; ++i) {
-            ip = (ip << 8) + ipPart[i];
+            ip = (ip << 8) + ipPart[i]; // left-move 8 bits for each part
         }
         return ip;
     }
@@ -71,6 +71,14 @@ public:
             os << ip.getIpStr();
         }
         return os;
+    }
+
+    bool operator==(const IP& rhs) const {
+        return ip == rhs.ip;
+    }
+
+    bool operator!=(const IP& rhs) const {
+        return !(rhs == *this);
     }
 
 private:

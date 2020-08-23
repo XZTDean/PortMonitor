@@ -44,16 +44,25 @@ PortMonitor* oneHourMonitor(const vector<int>& node) {
 void dayMonitor(const vector<int>& node) {
     string date = generateDate();
     PortMonitor* monitor[24];
-    for (auto& mo : monitor) {
+    for (auto&& mo : monitor) {
         mo = oneHourMonitor(node);
         ofstream fout("log/" + date + ".log", ios::app);
         fout << *mo;
         fout.close();
     }
-    cout << date << " generate.\n";
-    for (auto& mo : monitor) {
+    PortMonitor dailyRec(node, monitor[0]->getStartTime(), monitor[23]->getEndTime());
+    for (auto&& mo : monitor) {
+        dailyRec.addRecord(*mo);
+    }
+    ofstream fout("log/" + date + ".log");
+    fout << "********** Daily Record **********\n";
+    fout << dailyRec;
+    fout << "********** Hourly Record **********\n";
+    for (auto&& mo : monitor) {
+        fout << *mo;
         delete mo;
     }
+    cout << date << " generate.\n";
 }
 
 int main() {

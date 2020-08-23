@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include "IP.h"
 using namespace std;
 
 
@@ -14,7 +15,12 @@ public:
     PortMonitor(const vector<int>& node) : node(node) {
         startTime = time(nullptr);
         endTime = time(nullptr);
-        ip = new vector<string>[node.size()];
+        ip = new vector<IP>[node.size()];
+    }
+
+    PortMonitor(const vector<int>& node, time_t startTime, time_t endTime)
+               : startTime(startTime), endTime(endTime), node(node) {
+        ip = new vector<IP>[node.size()];
     }
 
     virtual ~PortMonitor() {
@@ -25,14 +31,23 @@ public:
         endTime = time(nullptr);;
     }
 
+    time_t getStartTime() const {
+        return startTime;
+    }
+
+    time_t getEndTime() const {
+        return endTime;
+    }
+
     void recode() {
         int nodeSize = node.size();
         for (int i = 0; i < nodeSize; ++i) {
             string nodeNum = to_string(node[i]);
-            string command = "netstat -n | grep :" + nodeNum + " >> tmp";
+            string tmpFile = "tmp" + nodeNum;
+            string command = "netstat -n | grep :" + nodeNum + " >> " + tmpFile;
             system(command.data());
 
-            ifstream fin("tmp");
+            ifstream fin(tmpFile);
             string tmp;
             while (!fin.eof()) { // Sample: tcp6       0      0 SFO2-Ubuntu18:8932      118.114.165.46:52558    ESTABLISHED
                 getline(fin >> ws, tmp);
@@ -46,13 +61,30 @@ public:
                     continue;
                 int end = tmp.find_first_of(':', pos);
                 string ipAddr = tmp.substr(pos, end - pos);
+                IP ipNum(ipAddr);
 
-                if (find(this->ip[i].begin(), this->ip[i].end(), ipAddr) == this->ip[i].end()) {
-                    this->ip[i].push_back(ipAddr);
+                if (find(this->ip[i].begin(), this->ip[i].end(), ipNum) == this->ip[i].end()
+                   && ipNum.isValid()) {
+                    this->ip[i].push_back(ipNum);
                 }
             }
             fin.close();
-            system("rm tmp");
+            string rm = "rm " + tmpFile;
+            system(rm.data());
+        }
+    }
+
+    void addRecord(const PortMonitor& hourRec) {
+        if (this->node != hourRec.node) {
+            return;
+        }
+        int nodeSize = node.size();
+        for (int i = 0; i < nodeSize; ++i) {
+            for (auto&& recIP : hourRec.ip[i]) { // check whether IP from hourly record in daily record
+                if (find(this->ip[i].begin(), this->ip[i].end(), recIP) == this->ip[i].end()) {
+                    ip[i].push_back(recIP);
+                }
+            }
         }
     }
 
@@ -87,7 +119,7 @@ public:
 private:
     time_t startTime;
     time_t endTime;
-    vector<string>* ip; // Array of vector
+    vector<IP>* ip; // Array of vector
     const vector<int>& node;
 };
 
