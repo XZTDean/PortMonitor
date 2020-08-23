@@ -62,6 +62,7 @@ void dayMonitor(const vector<int>& node) {
         fout << *mo;
         delete mo;
     }
+    fout.close();
     cout << date << " generate.\n";
 }
 
